@@ -3,7 +3,7 @@ import random
 
 WIDTH = 1280
 HEIGHT = 720
-TITLE = "Space War con Control de PlayStation"
+TITLE = "Space War - Nivel 1"
 MOVEMENT_SPEED = 5
 DEAD_ZONE = 0.2  # Zona muerta para evitar drift del joystick
 
