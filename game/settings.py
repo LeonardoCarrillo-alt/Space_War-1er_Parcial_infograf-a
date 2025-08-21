@@ -1,0 +1,4 @@
+WIDTH = 1280
+HEIGHT = 720
+TITLE = "hola arcade"
+MOVEMENT_SPEED = 5
