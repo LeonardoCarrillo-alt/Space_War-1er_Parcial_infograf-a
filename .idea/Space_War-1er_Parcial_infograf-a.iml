@@ -5,4 +5,11 @@
     <orderEntry type="jdk" jdkName="Python 3.12 virtualenv at C:\Users\usuario\PycharmProjects\PythonProject\.venv" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
+  <component name="PyNamespacePackagesService">
+    <option name="namespacePackageFolders">
+      <list>
+        <option value="$MODULE_DIR$/game" />
+      </list>
+    </option>
+  </component>
 </module>
