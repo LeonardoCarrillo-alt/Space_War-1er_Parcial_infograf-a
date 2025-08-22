@@ -1,5 +1,5 @@
 import arcade
-from game .settings import WIDTH, HEIGHT, TITLE
+from game.settings import WIDTH, HEIGHT, TITLE
 from game.views.game_view import GameView
 
 def main():

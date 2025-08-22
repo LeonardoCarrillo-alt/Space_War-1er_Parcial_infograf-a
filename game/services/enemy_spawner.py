@@ -5,8 +5,9 @@ from ..models.enemy import Enemy
 class EnemySpawner:
     @staticmethod
     def spawn(enemies: "arcade.SpriteList", count: int = None):
-        num_enemies = count if count else random.randint(5, 10)
+
+        num_enemies = random.randint(10, 15)
         for _ in range(num_enemies):
             x_pos = random.randint(50, WIDTH - 50)
-            y_pos = random.randint(400, HEIGHT - 100)
+            y_pos = random.randint(HEIGHT // 2, HEIGHT - 100)
             enemies.append(Enemy(center_x=x_pos, center_y=y_pos, scale=0.15))

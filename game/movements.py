@@ -122,7 +122,7 @@ class KeyboardMovementView(arcade.View):
             self.player.lives -= 1
             print(f"Vidas restantes: {self.player.lives}")
             if self.player.lives <= 0:
-                print("Game Over")
+                print("game Over")
                 arcade.close_window()
 
     def on_draw(self):

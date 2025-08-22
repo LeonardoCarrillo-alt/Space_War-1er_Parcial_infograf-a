@@ -1,4 +1,5 @@
 WIDTH = 1280
 HEIGHT = 720
-TITLE = "hola arcade"
+TITLE = "Space War"
 MOVEMENT_SPEED = 5
+DEAD_ZONE = 0.2

@@ -7,9 +7,10 @@ class LaserRay(arcade.Sprite):
         self.change_y = speed
 
     def update(self, delta_time):
-        self.center_x += self.change_x
+        #self.center_x += self.change_x
         self.center_y += self.change_y
-        if self.center_y > HEIGHT or self.center_x < 0 or self.center_x > WIDTH:
+
+        if self.center_y > HEIGHT: #or self.center_x < 0 or self.center_x > WIDTH:
             self.remove_from_sprite_lists()
 
     def check_collision(self, enemies: arcade.SpriteList, player: "Player"):
