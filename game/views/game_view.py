@@ -49,11 +49,13 @@ class GameView(arcade.View):
                 enemy.shoot(self.enemy_laser_list)
 
         if CollisionService.check_player_hit(self.player, self.enemy_laser_list):
+
             print(f"Vidas restantes: {self.player.lives}")
             if self.player.lives <= 0:
+                #Se modificaran el game over
                 print("game Over")
-                #Aquí deberíamos poner el respawn enemies
-                #arcade.close_window()
+                fail_view = DifficultyView()
+                self.window.show_view(fail_view)
 
     def on_draw(self):
         self.clear()
@@ -73,7 +75,7 @@ class GameView(arcade.View):
             font_size=16)
          
         arcade.draw_text(
-            f"Último botón: {self.last_button_pressed}",
+            f"Vidas: {self.player.lives}",
             20,
             HEIGHT - 120,
             arcade.color.YELLOW,

@@ -1,11 +1,11 @@
 import arcade
 from game.settings import WIDTH, HEIGHT, TITLE
-from game.views.game_view import GameView
+from game.views.start_view import StartView
 
 def main():
     window = arcade.Window(WIDTH, HEIGHT, TITLE)
-    game = GameView()
-    window.show_view(game)
+    start_view = StartView()
+    window.show_view(start_view)
     arcade.run()
 
 if __name__ == "__main__":
