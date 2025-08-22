@@ -10,7 +10,7 @@ MOVEMENT_SPEED = 5
 class Player(arcade.Sprite):
     def __init__(self, scale=0, center_x=0, center_y=0):
         super().__init__(
-            "img/navecita.png",
+            "assets/imgScreen/navecita.png",
             scale, center_x, center_y)
         self.score = 0
         self.lives = 3
@@ -24,7 +24,7 @@ class Player(arcade.Sprite):
 
 class LaserRay(arcade.Sprite):
     def __init__(self, scale= 0.1, speed=10, center_x=0, center_y=0):
-        super().__init__("img/laserRay.png", scale, center_x, center_y)
+        super().__init__("assets/imgScreen/laserRay.png", scale, center_x, center_y)
         self.change_y = speed
 
     def update(self, delta_time):
@@ -47,7 +47,7 @@ class LaserRay(arcade.Sprite):
 class Enemy(arcade.Sprite):
     def __init__(self, scale = 1, center_x = 0, center_y = 0):
         super().__init__(
-            "img/coin.png",
+            "assets/imgScreen/alien1.png",
             scale, center_x, center_y)
         self.change_x = random.choice([-3, -2, -1, 1, 2, 3, 4])
 
@@ -65,7 +65,7 @@ class Enemy(arcade.Sprite):
 
 class EnemyLaser(arcade.Sprite):
     def __init__(self, scale=0.08, speed=-5, center_x=0, center_y=0):
-        super().__init__("img/laserRay.png", scale, center_x, center_y)
+        super().__init__("assets/imgScreen/laserRay.png", scale, center_x, center_y)
         self.change_y = speed  # va hacia abajo
 
     def update(self, delta_time):

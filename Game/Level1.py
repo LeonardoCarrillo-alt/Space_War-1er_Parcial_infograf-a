@@ -10,7 +10,7 @@ DEAD_ZONE = 0.2
 class Player(arcade.Sprite):
     def __init__(self, scale=0.1, center_x=0, center_y=0):
         super().__init__(
-            "/Users/leonardocarrillo/1erParcialSW/Space_War-1er_Parcial_infograf-a/assets/imgScreen/navecita.png",
+            "assets/imgScreen/navecita.png",
             scale, center_x, center_y)
         self.score = 0
         self.controller = None
@@ -41,7 +41,7 @@ class Player(arcade.Sprite):
 
 class LaserRay(arcade.Sprite):
     def __init__(self, scale=0.1, speed=10, center_x=0, center_y=0):
-        super().__init__("/Users/leonardocarrillo/1erParcialSW/Space_War-1er_Parcial_infograf-a/assets/imgScreen/laserRay.png", scale, center_x, center_y)
+        super().__init__("assets/imgScreen/laserRay.png", scale, center_x, center_y)
         self.change_y = speed
         self.bottom = center_y + 30  
 
@@ -66,24 +66,24 @@ class LaserRay(arcade.Sprite):
 class Enemy(arcade.Sprite):
     def __init__(self, scale=1, center_x=0, center_y=0):
         super().__init__(
-            "/Users/leonardocarrillo/1erParcialSW/Space_War-1er_Parcial_infograf-a/assets/imgScreen/alien1.png",
+            "assets/imgScreen/alien1.png",
             scale, center_x, center_y)
-        self.change_x = random.choice([-3, -2, -1, 1, 2, 3])  # Velocidades más variadas
+        self.change_x = random.choice([-3, -2, -1, 1, 2, 3])
         
     def update(self, delta_time: float=1/60):
         self.center_x += self.change_x
 
-        if self.left < 20:
+        if self.left < 70:
             self.change_x = abs(self.change_x) 
-        elif self.right > WIDTH - 20:
+        elif self.right > WIDTH - 70:
             self.change_x = -abs(self.change_x)  
 
 
 class GameView(arcade.View):
     def __init__(self):
         super().__init__()
-        self.background = arcade.load_texture("/Users/leonardocarrillo/1erParcialSW/Space_War-1er_Parcial_infograf-a/assets/imgScreen/gamescreen.png")
-        self.sound = arcade.load_sound("/Users/leonardocarrillo/1erParcialSW/Space_War-1er_Parcial_infograf-a/audio/retro-8bit-happy-adventure-videogame-music-246635.mp3")
+        self.background = arcade.load_texture("assets/imgScreen/gamescreen.png")
+        self.sound = arcade.load_sound("audio/retro-8bit-happy-adventure-videogame-music-246635.mp3")
 
         arcade.play_sound(self.sound, volume=0.2)
         
@@ -104,7 +104,6 @@ class GameView(arcade.View):
         self.last_button_pressed = "Ninguno"
 
     def setup_controller(self):
-        """Configurar el control y registrar manejadores en la vista principal"""
         if self.player.controller:
             self.player.controller.push_handlers(self)
             print("Control configurado en la vista del juego")
