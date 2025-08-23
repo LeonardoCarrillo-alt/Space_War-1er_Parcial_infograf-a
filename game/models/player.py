@@ -4,7 +4,7 @@ from ..settings import MOVEMENT_SPEED
 
 class Player(arcade.Sprite):
     def __init__(self, scale=0.4, center_x=0, center_y=0):
-        super().__init__("img/navecita.png", scale, center_x, center_y)
+        super().__init__("assets/imgScreen/navecita.png", scale, center_x, center_y)
         self.score = 0
         self.lives = 3
 

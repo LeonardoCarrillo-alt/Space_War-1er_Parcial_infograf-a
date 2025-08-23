@@ -66,12 +66,12 @@ class Enemy(arcade.Sprite):
 class EnemyLaser(arcade.Sprite):
     def __init__(self, scale=0.08, speed=-5, center_x=0, center_y=0):
         super().__init__("assets/imgScreen/laserRay.png", scale, center_x, center_y)
-        self.change_y = speed  # va hacia abajo
+        self.change_y = speed  
 
     def update(self, delta_time):
         self.center_x += self.change_x
         self.center_y += self.change_y
-        # si sale de pantalla se elimina
+       
         if self.center_y < 0 or self.center_y > HEIGHT:
             self.remove_from_sprite_lists()
 

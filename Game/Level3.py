@@ -3,7 +3,7 @@ import random
 
 WIDTH = 1280
 HEIGHT = 720
-TITLE = "Space War - Nivel 1"
+TITLE = "Space War - Nivel 3"
 MOVEMENT_SPEED = 5
 DEAD_ZONE = 0.2 
 
@@ -57,6 +57,7 @@ class LaserRay(arcade.Sprite):
         hit_list = arcade.check_for_collision_with_list(self, enemies)
         if hit_list:
             for enemy in hit_list:
+                enemy.hit_by_laser()
                 enemies.remove(enemy)
                 player.score += 10
                 print(f"¡Enemigo destruido! Puntuación: {player.score}")
@@ -67,19 +68,56 @@ class LaserRay(arcade.Sprite):
 
 class Enemy(arcade.Sprite):
     def __init__(self, scale=1, center_x=0, center_y=0):
-        super().__init__(
+        enemy_images = [
             "assets/imgScreen/alien1.png",
-            scale, center_x, center_y)
+            "assets/imgScreen/alien2.png",
+            "assets/imgScreen/alien3.png",
+            "assets/imgScreen/alien4.png"
+        ]
+        random_image = random.choice(enemy_images)
+        super().__init__(random_image, scale, center_x, center_y)
         self.change_x = random.choice([-3, -2, -1, 1, 2, 3])
+        self.is_hit = False
+        self.fall_x = 0 
+        self.fall_y = 0
         
     def update(self, delta_time: float=1/60):
-        self.center_x += self.change_x
 
-        if self.left < 70:
-            self.change_x = abs(self.change_x) 
-        elif self.right > WIDTH - 70:
-            self.change_x = -abs(self.change_x)  
+        if self.is_hit: 
+            self.center_x += self.fall_x
+            self.center_y += self.fall_y
 
+            if (self.top < 0 or self.right < 0 or self.left > WIDTH or self.bottom > HEIGHT):
+                self.remove_from_sprite_lists()
+        else: 
+            self.center_x += self.change_x
+            if self.left < 120:
+                self.change_x = abs(self.change_x) 
+            elif self.right > WIDTH - 120:
+                self.change_x = -abs(self.change_x)  
+
+    def hit_by_laser(self): 
+        if not self.is_hit: 
+            self.is_hit = True
+            direccion = random.choice([-1, 1])
+            self.fall_x = random.uniform(2, 5)*direccion
+            self.fall_y = random.uniform(-8, -5)
+
+    def shoot(self, enemy_lasers: arcade.SpriteList):
+        laser = self.EnemyLaser(center_x=self.center_x, center_y=self.center_y)
+        enemy_lasers.append(laser)
+
+    class EnemyLaser(arcade.Sprite):
+        def __init__(self, scale=0.08, speed=-5, center_x=0, center_y=0):
+            super().__init__("assets/imgScreen/laserRay.png", scale, center_x, center_y)
+            self.change_y = speed  
+
+        def update(self, delta_time):
+            self.center_x += self.change_x
+            self.center_y += self.change_y
+        
+            if self.center_y < 0 or self.center_y > HEIGHT:
+                self.remove_from_sprite_lists()
 
 class GameView(arcade.View):
     def __init__(self):
@@ -92,6 +130,7 @@ class GameView(arcade.View):
         self.sprite_list = arcade.SpriteList()
         self.enemies = arcade.SpriteList()
         self.lasers = arcade.SpriteList()
+        self.enemy_lasers = arcade.SpriteList()
         self.player = Player(
             center_x=WIDTH // 2,
             center_y=100,
@@ -122,11 +161,28 @@ class GameView(arcade.View):
         self.sprite_list.update(delta_time)
         self.enemies.update(delta_time)
         self.lasers.update(delta_time)
+        self.enemy_lasers.update(delta_time)
 
         for laser in self.lasers:
             laser.check_enemies(self.enemies, self.player)
+        
+        for enemy in self.enemies:
+            if random.random() < 0.01:
+                enemy.shoot(self.enemy_lasers)
+        
+        hits = arcade.check_for_collision_with_list(self.player, self.enemy_lasers)
+        if hits:
+            for h in hits:
+                h.remove_from_sprite_lists()
+            self.player.lives -= 1
+            print(f"Vidas restantes: {self.player.lives}")
+            if self.player.lives <= 0:
+                print("Game Over")
+                arcade.close_window()
+        
+        active_enemies = [enemy for enemy in self.enemies if not enemy.is_hit]
             
-        if len(self.enemies) == 0:
+        if len(active_enemies) == 0:
             self.spawn_enemies()
 
     def on_draw(self):
@@ -135,6 +191,7 @@ class GameView(arcade.View):
         self.sprite_list.draw()
         self.enemies.draw()
         self.lasers.draw()
+        self.enemy_lasers.draw()
         
         arcade.draw_text(
             f"Score: {self.player.score}",

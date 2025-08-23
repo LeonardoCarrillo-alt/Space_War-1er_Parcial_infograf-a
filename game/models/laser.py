@@ -3,7 +3,7 @@ from ..settings import WIDTH, HEIGHT
 
 class LaserRay(arcade.Sprite):
     def __init__(self, scale=0.1, speed=10, center_x=0, center_y=0):
-        super().__init__("img/laserRay.png", scale, center_x, center_y)
+        super().__init__("assets/imgScreen/laserRay.png", scale, center_x, center_y)
         self.change_y = speed
 
     def update(self, delta_time):
