@@ -7,7 +7,7 @@ TITLE = "Screen Manager with Arcade"
 
 class Story(arcade.Sprite):
     def __init__(self, scale=20, center_x=0, center_y=0):
-        super().__init__("/Users/leonardocarrillo/1erParcialSW/Space_War-1er_Parcial_infograf-a/assets/imgScreen/story.png", scale, center_x, center_y)
+        super().__init__("assets/imgScreen/story.png", scale, center_x, center_y)
         self.change_y = 0.1 
 
     def update(self, delta_time: float = 1/60):
