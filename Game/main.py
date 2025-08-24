@@ -1,24 +1,11 @@
 import arcade
-import firstScreen
-import screenStory
-
-WIDTH = 1280
-HEIGHT = 720
-TITLE = "Space War - Game"
-
-class GameWindow(arcade.Window):
-    def __init__(self):
-        super().__init__(WIDTH, HEIGHT, TITLE)
-        
-        # Crear las vistas
-        self.screen_view = firstScreen.ScreenView()
-        self.story_view = screenStory.ScreenStory()
-        
-        # Mostrar la primera pantalla
-        self.show_view(self.screen_view)
+from game.settings import WIDTH, HEIGHT, TITLE
+from game.views.start_view import StartView
 
 def main():
-    window = GameWindow()
+    window = arcade.Window(WIDTH, HEIGHT, TITLE)
+    start_view = StartView()
+    window.show_view(start_view)
     arcade.run()
 
 if __name__ == "__main__":
