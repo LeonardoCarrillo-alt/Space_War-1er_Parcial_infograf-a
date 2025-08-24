@@ -2,7 +2,8 @@ import arcade
 import random
 import gameOverScreen
 import winScreen
-
+import math
+import time
 WIDTH = 1280
 HEIGHT = 720
 TITLE = "Space War - Nivel 3"
@@ -57,58 +58,113 @@ class LaserRay(arcade.Sprite):
         if self.bottom > HEIGHT:
             self.remove_from_sprite_lists()
 
-    def check_enemies(self, enemies: arcade.SpriteList, player: "Player"):
+    def check_enemies(self, enemies: arcade.SpriteList, destroyed_enemies: arcade.SpriteList, player: "Player"):
         hit_list = arcade.check_for_collision_with_list(self, enemies)
         if hit_list:
             for enemy in hit_list:
-                enemy.hit_by_laser()
-                enemies.remove(enemy)
-                player.score += 10
-                print(f"¡Enemigo destruido! Puntuación: {player.score}")
+                if not enemy.destroyed: 
+                    destroyed_enemy = DestroyedEnemy(enemy.center_x, enemy.center_y, scale=1)
+                    destroyed_enemies.append(destroyed_enemy)
+                    
+                    enemy.hit_by_laser(player)
+                    player.score += 10
+                    print(f"¡Enemigo impactado! Puntuación: {player.score}")
+                    
+                    if not enemy.is_diving:
+                        enemy.destroyed = True
+                    
             self.remove_from_sprite_lists()
             return True
         return False
 
+class DestroyedEnemy(arcade.Sprite): 
+    def __init__(self, center_x, center_y, scale=1):
+        super().__init__("assets/imgScreen/explode.png", scale, center_x, center_y)
+        self.creation_time = time.time() 
+        self.playBoom = arcade.load_sound("audio/retro-explode-1-236678.mp3")
+        arcade.play_sound(self.playBoom, volume=0.2)
 
+    def update(self, delta_time=0):
+        if time.time() - self.creation_time > 1:
+            self.remove_from_sprite_lists()
+ 
 class Enemy(arcade.Sprite):
     def __init__(self, scale=1, center_x=0, center_y=0):
-        enemy_images = [
+        ALIEN_SPRITES = [
             "assets/imgScreen/alien1.png",
-            "assets/imgScreen/alien1.png",
-            "assets/imgScreen/alien1.png",
-            "assets/imgScreen/alien1.png"
+            "assets/imgScreen/alien2.1.png",
+            "assets/imgScreen/alien3.1.png",
+            "assets/imgScreen/alien4.png",
+            "assets/imgScreen/alien5.1.png"
         ]
-        random_image = random.choice(enemy_images)
-        super().__init__(random_image, scale, center_x=center_x, center_y=center_y)
+        random_sprite = random.choice(ALIEN_SPRITES)
+        super().__init__(random_sprite, scale, center_x, center_y)
         self.change_x = random.choice([-3, -2, -1, 1, 2, 3])
         self.is_hit = False
-        self.fall_x = 0 
+        self.destroyed = False
+        self.fall_x = 0
         self.fall_y = 0
+
+        self.is_diving = False
+        self.kamikaze_dx = 0 
+        self.kamikaze_dy = 0  
+        self.dive_speed = 0
         
     def update(self, delta_time: float=1/60):
+        if self.destroyed:
+            return
+            
         if self.is_hit: 
+           
             self.center_x += self.fall_x
             self.center_y += self.fall_y
 
             if (self.top < 0 or self.right < 0 or self.left > WIDTH or self.bottom > HEIGHT):
-                self.remove_from_sprite_lists()
-        else: 
+                self.destroyed = True
+
+        elif self.is_diving:
+            self.center_x += self.kamikaze_dx
+            self.center_y += self.kamikaze_dy
+
+            if (self.top < 0 or self.right < 0 or self.left > WIDTH or self.bottom > HEIGHT):
+                self.destroyed = True
+
+        else:
             self.center_x += self.change_x
             if self.left < 120:
                 self.change_x = abs(self.change_x) 
             elif self.right > WIDTH - 120:
-                self.change_x = -abs(self.change_x)  
+                self.change_x = -abs(self.change_x)
 
-    def hit_by_laser(self): 
-        if not self.is_hit: 
-            self.is_hit = True
-            direccion = random.choice([-1, 1])
-            self.fall_x = random.uniform(2, 5)*direccion
-            self.fall_y = random.uniform(-8, -5)
+    def start_kamikaze(self, player):
+        if not self.destroyed and not self.is_diving:
+            self.is_diving = True
+            self.dive_speed = random.uniform(3, 6)
+
+            dx = player.center_x - self.center_x
+            dy = player.center_y - self.center_y
+            distance = math.hypot(dx, dy)
+            if distance == 0:
+                distance = 1  
+            self.kamikaze_dx = dx / distance * self.dive_speed
+            self.kamikaze_dy = dy / distance * self.dive_speed
+            print("Enemigo en modo kamikaze")
+
+    def hit_by_laser(self, player): 
+        """ Llamado cuando recibe un disparo del jugador """
+        if not self.is_hit and not self.is_diving:
+            if random.random() < 0.5:
+                self.start_kamikaze(player)
+            else:
+                self.is_hit = True
+                direccion = random.choice([-1, 1])
+                self.fall_x = random.uniform(2, 5) * direccion
+                self.fall_y = random.uniform(-8, -5)
 
     def shoot(self, enemy_lasers: arcade.SpriteList):
-        laser = EnemyLaser(center_x=self.center_x, center_y=self.center_y)
-        enemy_lasers.append(laser)
+        if not self.destroyed and not self.is_hit and not self.is_diving: 
+            laser = EnemyLaser(center_x=self.center_x, center_y=self.center_y)
+            enemy_lasers.append(laser)
 
 
 class EnemyLaser(arcade.Sprite):
@@ -126,23 +182,14 @@ class EnemyLaser(arcade.Sprite):
 class Level3GameView(arcade.View):
     def __init__(self):
         super().__init__()
-        self.background = None
-        self.sound = None
-         
-        try:
-            self.background = arcade.load_texture("assets/imgScreen/gamescreen.png")
-        except:
-            print("Error cargando el fondo")
-        
-        try:
-            self.sound = arcade.load_sound("audio/retro-8bit-happy-adventure-videogame-music-246635.mp3")
-            self.level3Sound = arcade.play_sound(self.sound, volume=0.2)
-        except:
-            print("Error cargando el sonido")
+        self.background = arcade.load_texture("assets/imgScreen/gamescreen.png")
+        self.sound = arcade.load_sound("audio/level3.mp3")
+        self.level3Sound = arcade.play_sound(self.sound, volume=0.2)
         
         self.sprite_list = arcade.SpriteList()
         self.enemies = arcade.SpriteList()
         self.lasers = arcade.SpriteList()
+        self.destroyed_enemies = arcade.SpriteList()
         self.enemy_lasers = arcade.SpriteList()
         
         self.player = Player(
@@ -154,7 +201,6 @@ class Level3GameView(arcade.View):
         self.spawn_enemies()
         
         self.setup_controller()
-        
         self.last_button_pressed = "Ninguno"
 
     def setup_controller(self):
@@ -171,48 +217,65 @@ class Level3GameView(arcade.View):
             self.enemies.append(enemy)
 
     def on_update(self, delta_time):
-        self.sprite_list.update()
-        self.enemies.update()
-        self.lasers.update()
-        self.enemy_lasers.update()
+        self.sprite_list.update(delta_time)
+        self.enemies.update(delta_time)
+        self.lasers.update(delta_time)
+        self.destroyed_enemies.update(delta_time)
+        self.enemy_lasers.update(delta_time)
 
         for laser in self.lasers:
-            laser.check_enemies(self.enemies, self.player)
-        
+            laser.check_enemies(self.enemies, self.destroyed_enemies, self.player)
+
         for enemy in self.enemies:
-            if random.random() < 0.01 and not enemy.is_hit:
+            if (not enemy.destroyed and not enemy.is_diving and 
+                not enemy.is_hit and random.random() < 0.01):
                 enemy.shoot(self.enemy_lasers)
-        
+
+        hits_enemy = arcade.check_for_collision_with_list(self.player, self.enemies)
+        if hits_enemy:
+            for enemy in hits_enemy:
+                if enemy.is_diving and not enemy.destroyed:
+                    destroyed_enemy = DestroyedEnemy(enemy.center_x, enemy.center_y, scale=1)
+                    self.destroyed_enemies.append(destroyed_enemy)
+                    
+                    enemy.destroyed = True
+                    self.player.lives -= 1
+                    print(f"💥 Impacto kamikaze! Vidas: {self.player.lives}")
+
         hits = arcade.check_for_collision_with_list(self.player, self.enemy_lasers)
-        if len(self.enemies) == 0:
-            level3 = winScreen.WinView()
-            arcade.stop_sound(self.level3Sound)
-            self.window.show_view(level3)
         if hits:
             for h in hits:
                 h.remove_from_sprite_lists()
             self.player.lives -= 1
             print(f"Vidas restantes: {self.player.lives}")
-            if self.player.lives <= 0:
-                screenGO = gameOverScreen.GameOverView()
-                arcade.stop_sound(self.level3Sound)
-                self.window.show_view(screenGO)
+
+        enemies_to_remove = []
+        for enemy in self.enemies:
+            if enemy.destroyed:
+                enemies_to_remove.append(enemy)
         
-        active_enemies = [enemy for enemy in self.enemies if not enemy.is_hit]
-            
-       
+        for enemy in enemies_to_remove:
+            self.enemies.remove(enemy)
+
+        if self.player.lives <= 0:
+            screenGO = gameOverScreen.GameOverView()
+            arcade.stop_sound(self.level3Sound)
+            self.window.show_view(screenGO)
+            return  
+
+        if len(self.enemies) == 0:
+            win = winScreen.WinView()
+            arcade.stop_sound(self.level3Sound)
+            self.window.show_view(win)
 
     def on_draw(self):
         self.clear()
-        
-        if self.background:
-            arcade.draw_texture_rect( self.background,arcade.LRBT(0, WIDTH, 0, HEIGHT))
-        else:
-            arcade.set_background_color(arcade.color.BLACK)
+        arcade.draw_texture_rect(self.background, arcade.LRBT(0, WIDTH, 0, HEIGHT))
         
         self.sprite_list.draw()
         self.enemies.draw()
         self.lasers.draw()
+        self.destroyed_enemies.draw()
         self.enemy_lasers.draw()
         
         arcade.draw_text(
@@ -247,7 +310,6 @@ class Level3GameView(arcade.View):
     def on_joybutton_press(self, joystick, button):
         print(f"Botón presionado: {button}")
         self.last_button_pressed = str(button)
-        
         self.player.shoot(self.lasers)
             
     def on_joybutton_release(self, joystick, button):

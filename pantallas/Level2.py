@@ -2,6 +2,7 @@ import arcade
 import random
 import gameOverScreen
 import Level3
+import time
 
 WIDTH = 1280
 HEIGHT = 720
@@ -42,34 +43,59 @@ class LaserRay(arcade.Sprite):
         if self.center_x > WIDTH or self.center_x < 0 or self.center_y > HEIGHT:
             self.remove_from_sprite_lists()  
 
-    def check_enemies(self, enemies: arcade.SpriteList, player: "Player"):
+    def check_enemies(self, enemies: arcade.SpriteList,  destroyed_enemies: arcade.SpriteList , player: "Player"):
         for enemy in enemies:
+            
             if (
                     abs(self.center_x - enemy.center_x) < 20 and
                     abs(self.center_y - enemy.center_y) < 20
             ):
+                enemy.destroyed = True
+                destroyed_enemy = DestroyedEnemy(enemy.center_x, enemy.center_y, scale = 1)
+                destroyed_enemies.append(destroyed_enemy)
                 enemies.remove(enemy)
-                self.remove_from_sprite_lists()  # la bala desaparece al chocar
+                self.remove_from_sprite_lists() 
                 player.score += 10
-                break  # rompe el bucle porque la bala ya murió
+                break  
+
+
+class DestroyedEnemy(arcade.Sprite): 
+    def __init__(self, center_x, center_y, scale=1):
+        super().__init__("assets/imgScreen/explode.png", scale, center_x, center_y)
+        self.creation_time = time.time() 
+        self.playBoom = arcade.load_sound("audio/retro-explode-1-236678.mp3")
+        arcade.play_sound(self.playBoom, volume=0.2)
+    def update(self, delta_time=0):
+        if time.time() - self.creation_time > 1:
+            self.remove_from_sprite_lists()
+
 
 class Enemy(arcade.Sprite):
     def __init__(self, scale = 1, center_x = 0, center_y = 0):
-        super().__init__(
+        ALIEN_SPRITES = [
             "assets/imgScreen/alien1.png",
-            scale, center_x, center_y)
+            "assets/imgScreen/alien2.1.png",
+            "assets/imgScreen/alien3.1.png",
+            "assets/imgScreen/alien4.png",
+            "assets/imgScreen/alien5.1.png"
+        ]
+        random_sprite = random.choice(ALIEN_SPRITES)
+        super().__init__(random_sprite, scale, center_x, center_y)
         self.change_x = random.choice([-3, -2, -1, 1, 2, 3, 4])
+        self.destroyed = False
 
     def update(self, delta_time: float = 1/60):
-       self.center_x += self.change_x
-       if self.left < 120:
-            self.change_x = abs(self.change_x) 
-       elif self.right > WIDTH - 120:
-            self.change_x = -abs(self.change_x)  
+       if not self.destroyed:  
+            self.center_x += self.change_x
+            if self.left < 120:
+                self.change_x = abs(self.change_x) 
+            elif self.right > WIDTH - 120:
+                self.change_x = -abs(self.change_x) 
 
     def shoot(self, enemy_lasers: arcade.SpriteList):
-        laser = EnemyLaser(center_x=self.center_x, center_y=self.center_y)
-        enemy_lasers.append(laser)
+        if not self.destroyed: 
+            laser = EnemyLaser(center_x=self.center_x, center_y=self.center_y)
+            enemy_lasers.append(laser)
 
 class EnemyLaser(arcade.Sprite):
     def __init__(self, scale=0.08, speed=-5, center_x=0, center_y=0):
@@ -91,6 +117,7 @@ class Level2GameView(arcade.View):
         self.sprite_list = arcade.SpriteList()
         self.enemies = arcade.SpriteList()
         self.laserRay = arcade.SpriteList()
+        self.destroyed_enemies = arcade.SpriteList()
         self.enemy_lasers = arcade.SpriteList()
         self.player = Player(
             center_x=WIDTH // 4.5,
@@ -112,21 +139,18 @@ class Level2GameView(arcade.View):
         self.sprite_list.update(delta_time)
         self.enemies.update(delta_time)
         self.laserRay.update(delta_time)
+        self.destroyed_enemies.update(delta_time)
         self.enemy_lasers.update(delta_time)
 
        
         for laser in self.laserRay:
-            laser.check_enemies(self.enemies, self.player)
+            laser.check_enemies(self.enemies,self.destroyed_enemies, self.player)
 
         for enemy in self.enemies:
             if random.random() < 0.01: 
                 enemy.shoot(self.enemy_lasers)
 
         hits = arcade.check_for_collision_with_list(self.player, self.enemy_lasers)
-        if len(self.enemies) == 0:
-            level3 = Level3.Level3GameView()
-            arcade.stop_sound(self.level2Sound)
-            self.window.show_view(level3)
         if hits:
             for h in hits:
                 h.remove_from_sprite_lists()
@@ -136,6 +160,10 @@ class Level2GameView(arcade.View):
                 screenGO = gameOverScreen.GameOverView()
                 arcade.stop_sound(self.level2Sound)
                 self.window.show_view(screenGO)
+        if len(self.enemies) == 0:
+            level3 = Level3.Level3GameView()
+            arcade.stop_sound(self.level2Sound)
+            self.window.show_view(level3)
 
     def on_draw(self):
         self.clear()
@@ -144,6 +172,7 @@ class Level2GameView(arcade.View):
         self.enemies.draw()
         self.laserRay.draw()
         self.enemy_lasers.draw()
+        self.destroyed_enemies.draw()
        
 
         arcade.draw_text(

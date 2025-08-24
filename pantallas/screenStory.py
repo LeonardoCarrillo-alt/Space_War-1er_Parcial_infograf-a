@@ -18,9 +18,9 @@ class Story(arcade.Sprite):
 class ScreenStoryView(arcade.View):
     def __init__(self):
         super().__init__()
-        self.background = arcade.load_texture("/Users/leonardocarrillo/1erParcialSW/Space_War-1er_Parcial_infograf-a/assets/imgScreen/screen2.png")
+        self.background = arcade.load_texture("assets/imgScreen/screen2.png")
         
-        self.sound = arcade.load_sound("/Users/leonardocarrillo/1erParcialSW/Space_War-1er_Parcial_infograf-a/audio/8-bit-heaven-26287.mp3")
+        self.sound = arcade.load_sound("audio/8-bit-heaven-26287.mp3")
 
         self.player = Story(
             center_x=WIDTH // 2,  

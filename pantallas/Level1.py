@@ -11,6 +11,7 @@ MOVEMENT_SPEED = 5
 DEAD_ZONE = 0.2 
 LEVEL_TIME = 40
 
+
 class Player(arcade.Sprite):
     def __init__(self, scale=0.1, center_x=0, center_y=0):
         super().__init__(
@@ -55,10 +56,13 @@ class LaserRay(arcade.Sprite):
         if self.bottom > HEIGHT:
             self.remove_from_sprite_lists()
 
-    def check_enemies(self, enemies: arcade.SpriteList, player: "Player"):
+    def check_enemies(self, enemies: arcade.SpriteList, destroyed_enemies: arcade.SpriteList, player: "Player"):
         hit_list = arcade.check_for_collision_with_list(self, enemies)
         if hit_list:
             for enemy in hit_list:
+                enemy.destroyed = True
+                destroyed_enemy = DestroyedEnemy(enemy.center_x, enemy.center_y, scale = 1)
+                destroyed_enemies.append(destroyed_enemy)
                 enemies.remove(enemy)
                 player.score += 10
                 print(f"¡Enemigo destruido! Puntuación: {player.score}")
@@ -69,18 +73,36 @@ class LaserRay(arcade.Sprite):
 
 class Enemy(arcade.Sprite):
     def __init__(self, scale=1, center_x=0, center_y=0):
-        super().__init__(
+        ALIEN_SPRITES = [
             "assets/imgScreen/alien1.png",
-            scale, center_x, center_y)
+            "assets/imgScreen/alien2.1.png",
+            "assets/imgScreen/alien3.1.png",
+            "assets/imgScreen/alien4.png",
+            "assets/imgScreen/alien5.1.png"
+        ]
+        random_sprite = random.choice(ALIEN_SPRITES)
+        super().__init__(random_sprite, scale, center_x, center_y)
         self.change_x = random.choice([-3, -2, -1, 1, 2, 3])
+        self.destroyed = False
         
     def update(self, delta_time: float=1/60):
-        self.center_x += self.change_x
+        if not self.destroyed:
+            self.center_x += self.change_x
 
-        if self.left < 70:
-            self.change_x = abs(self.change_x) 
-        elif self.right > WIDTH - 70:
-            self.change_x = -abs(self.change_x)  
+            if self.left < 120:
+                self.change_x = abs(self.change_x) 
+            elif self.right > WIDTH - 120:
+                self.change_x = -abs(self.change_x) 
+
+class DestroyedEnemy(arcade.Sprite): 
+    def __init__(self, center_x, center_y, scale=1):
+        super().__init__("assets/imgScreen/explode.png", scale, center_x, center_y)
+        self.creation_time = time.time() 
+        self.playBoom = arcade.load_sound("audio/retro-explode-1-236678.mp3")
+        arcade.play_sound(self.playBoom, volume=0.2)
+    def update(self, delta_time=0):
+        if time.time() - self.creation_time > 1:
+            self.remove_from_sprite_lists()
 
 
 class GameView(arcade.View):
@@ -94,6 +116,7 @@ class GameView(arcade.View):
         self.sprite_list = arcade.SpriteList()
         self.enemies = arcade.SpriteList()
         self.lasers = arcade.SpriteList()
+        self.destroyed_enemies = arcade.SpriteList()
         self.player = Player(
             center_x=WIDTH // 2,
             center_y=100,
@@ -127,9 +150,10 @@ class GameView(arcade.View):
         self.sprite_list.update(delta_time)
         self.enemies.update(delta_time)
         self.lasers.update(delta_time)
+        self.destroyed_enemies.update() 
 
         for laser in self.lasers:
-            laser.check_enemies(self.enemies, self.player)
+            laser.check_enemies(self.enemies,self.destroyed_enemies, self.player)
             
         if len(self.enemies) == 0:
             level2 = Level2.Level2GameView()
@@ -151,6 +175,7 @@ class GameView(arcade.View):
         self.sprite_list.draw()
         self.enemies.draw()
         self.lasers.draw()
+        self.destroyed_enemies.draw()
         
         arcade.draw_text(f"Score: {self.player.score}",20,HEIGHT - 40, arcade.color.AERO_BLUE,font_size=25)
         

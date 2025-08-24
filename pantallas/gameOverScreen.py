@@ -3,7 +3,7 @@ import firstScreen
 
 WIDTH = 1280
 HEIGHT = 720
-TITLE = "You Win!!!!!!!!"
+TITLE = "You Lose!!!!!!!!"
 
 class GameOverView(arcade.View):
     def __init__(self):
@@ -26,7 +26,29 @@ class GameOverView(arcade.View):
         arcade.draw_texture_rect(self.background, arcade.LRBT(0, WIDTH, 0, HEIGHT))
        
         self.sprite_list.draw()
+        arcade.draw_text(
+            "GAME OVER",
+            WIDTH // 2, HEIGHT // 2 + 100,
+            arcade.color.RED,
+            font_size=50,
+            anchor_x="center"
+        )
 
+        arcade.draw_text(
+            "Presiona ENTER para volver al inicio",
+            WIDTH // 2, HEIGHT // 2 - 50,
+            arcade.color.WHITE,
+            font_size=20,
+            anchor_x="center"
+        )
+
+        arcade.draw_text(
+            "Presiona ESC para salir",
+            WIDTH // 2, HEIGHT // 2 - 100,
+            arcade.color.GRAY,
+            font_size=18,
+            anchor_x="center"
+        )
     def on_key_press(self, symbol: int, modifiers: int) :
         if symbol == arcade.key.ESCAPE:
             arcade.close_window()
