@@ -1,4 +1,5 @@
 import arcade
+import Level1
 
 WIDTH = 1280
 HEIGHT = 720
@@ -14,7 +15,6 @@ class Story(arcade.Sprite):
         if self.bottom > HEIGHT:
             self.top = 0  
 
-
 class ScreenStoryView(arcade.View):
     def __init__(self):
         super().__init__()
@@ -22,7 +22,6 @@ class ScreenStoryView(arcade.View):
         
         self.sound = arcade.load_sound("/Users/leonardocarrillo/1erParcialSW/Space_War-1er_Parcial_infograf-a/audio/8-bit-heaven-26287.mp3")
 
-       
         self.player = Story(
             center_x=WIDTH // 2,  
             center_y=0,  
@@ -32,27 +31,21 @@ class ScreenStoryView(arcade.View):
         self.sprite_list = arcade.SpriteList()
         self.sprite_list.append(self.player)
         
-        
-        arcade.play_sound(self.sound, volume=0.2)
+        self.playSound2 =arcade.play_sound(self.sound, volume=0.2)
         
     def on_update(self, delta_time):
         """Actualizar la posición de los sprites"""
         self.sprite_list.update(delta_time)
         
     def on_draw(self):
-        """Render the screen"""
         self.clear()
         
         arcade.draw_texture_rect(self.background, arcade.LRBT(0, WIDTH, 0, HEIGHT))
-       
         self.sprite_list.draw()
+        
+    def on_key_press(self, symbol: int, modifiers: int):
+        if symbol == arcade.key.SPACE:
+            screen3 = Level1.GameView()
+            arcade.stop_sound(self.playSound2)
+            self.window.show_view(screen3)
 
-
-def main():
-    window = arcade.Window(WIDTH, HEIGHT, TITLE)
-    screen_view = ScreenStoryView()
-    window.show_view(screen_view)
-    arcade.run()
-
-if __name__ == "__main__":
-    main()

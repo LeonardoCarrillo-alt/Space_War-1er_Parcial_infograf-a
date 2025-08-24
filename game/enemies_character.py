@@ -11,8 +11,8 @@ class Enemies:
     def attack(self, other):
         damage = self.damage
 
-        if random.random() <= self.collapse_prob:
-            #prota recibe daño
+       # if random.random() <= self.collapse_prob:
+            # prota recibe daño
 
     def set_name(self, name):
         self.name = name
