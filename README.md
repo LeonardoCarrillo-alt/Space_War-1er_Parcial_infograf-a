@@ -1,39 +1,38 @@
-# Space War
+# Infografia - Universidad Privada Boliviana 1er parcial
 
-Space War es un videojuego desarrollado en **Python** con la librería **Arcade**, donde el jugador controla una nave espacial y debe enfrentarse a oleadas de enemigos alienígenas a lo largo de distintos niveles.  
-El juego incluye soporte tanto para **teclado** como para **mando (gamepad)**.
+## Descripción  
+Este repositorio contiene el código base para el proyecto de tipo propio.  
 
----
+Este proyecto implementa la funcionalidad base de un videojuego tipo **Space Invaders** desarrollado en **Python** con la librería **Arcade**. El proyecto contiene la mecánica fundamental (jugador, enemigos, disparos, colisiones) y permite jugar tanto con **teclado** como con **control/gamepad**.  
 
-## Características principales
-- Niveles progresivos de dificultad (Nivel 1, Nivel 2, ...).
-- Detección y destrucción de enemigos mediante disparos.
-- Sistema de puntuación y tiempo límite.
-- Explosiones animadas con efectos de sonido.
-- Game Over y pantallas de transición entre niveles.
-- Soporte para **controlador (joystick/gamepad)**.
+El juego está estructurado en distintos **niveles** (`Level1`, `Level2`, `Level3`), cada uno con mecánicas adicionales.
 
 ---
 
-## Controles
+## Instrucciones  
+Para ejecutar el programa de Arcade:  
 
-### Teclado
-- **← / →** → Mover la nave.
-- **Espacio** → Disparar.
+1. Clone (o forkee) el repositorio en un directorio local.  
+2. Abra la carpeta completa con **Visual Studio Code**.  
+3. Ejecute el archivo `firstScreen.py`.  
+4. Siga las instrucciones y controles para jugar.  
 
-### Gamepad 
-- **Stick izquierdo (eje X)** → Mover la nave.
-- **Botón A / X / 0** → Disparar.
+### Controles disponibles:  
+- **Teclado:**  
+  - Flechas ← → para moverse  
+  - **ESPACIO** para disparar  
+
+- **Mando/Joystick:**  
+  - Stick izquierdo para moverse  
+  - Botones **A / X / 0** para disparar  
 
 ---
 
-## ⚙️ Requisitos
-- Python **3.8+**
-- Librerías:
-  - [arcade](https://api.arcade.academy/en/latest/)
-  - random (incluida en Python estándar)
-  - time (incluida en Python estándar)
-
-Instala arcade con:
-```bash
-pip install arcade
+## Implementación de características adicionales  
+El código de base incluye:  
+- Mecánicas principales de jugador y enemigos.  
+- Soporte de **teclado y mando**.  
+- Sistema de **vidas**, **puntaje** y **tiempo por nivel**.  
+- Diferentes tipos de enemigos con disparos propios.  
+- Pantallas de **Game Over** y transición entre niveles.  
+ 
