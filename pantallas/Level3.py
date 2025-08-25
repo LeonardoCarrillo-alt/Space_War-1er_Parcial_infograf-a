@@ -19,6 +19,7 @@ class Player(arcade.Sprite):
             center_y=center_y
         )
         self.score = 0
+        self.controller = None
         self.lives = 3  
         self.controller = None
         self.sound = arcade.load_sound("audio/8-bit-laser-151672.mp3")
@@ -200,8 +201,13 @@ class Level3GameView(arcade.View):
         self.sprite_list.append(self.player)
         self.spawn_enemies()
         
-        self.setup_controller()
+        
         self.last_button_pressed = "Ninguno"
+        self.setup_controller()
+    def setup_controller(self):
+        if self.player.controller:
+            self.player.controller.push_handlers(self)
+            print("Control configurado en la vista del juego")
 
     def setup_controller(self):
         if self.player.controller:
@@ -307,11 +313,25 @@ class Level3GameView(arcade.View):
         if symbol in [arcade.key.LEFT, arcade.key.RIGHT]:
             self.player.change_x = 0
             
-    def on_joybutton_press(self, joystick, button):
-        print(f"Botón presionado: {button}")
-        self.last_button_pressed = str(button)
-        self.player.shoot(self.lasers)
+    
+    def on_joybutton_press(self, controller, button):
+        print(f"Botón presionado en la vista: {button}")
+        self.last_button_pressed = button
+        
+        if button == "x": 
+            self.player.shoot(self.lasers)
+            print("Disparando con botón X del control")
+        elif button == "a":  
+            self.player.shoot(self.lasers)
+            print("Disparando con botón A del control")
+        elif button == "0": 
+            self.player.shoot(self.lasers)
+            print("Disparando con botón 0 del control")
             
+        
+        self.player.shoot(self.lasers) 
+        
+    
     def on_joybutton_release(self, joystick, button):
         print(f"Botón liberado: {button}")
         

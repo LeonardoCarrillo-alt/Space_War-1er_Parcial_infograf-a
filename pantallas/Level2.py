@@ -6,9 +6,10 @@ import time
 
 WIDTH = 1280
 HEIGHT = 720
-TITLE = "hola arcade"
+TITLE = "Space War - Nivel 2"
 MOVEMENT_SPEED = 5
-
+DEAD_ZONE = 0.2 
+LEVEL_TIME = 40
 
 class Player(arcade.Sprite):
     def __init__(self, scale=0, center_x=0, center_y=0):
@@ -16,11 +17,19 @@ class Player(arcade.Sprite):
             "assets/imgScreen/navecita.png",
             scale, center_x, center_y)
         self.score = 0
+        self.controller = None
         self.lives = 3
+
+        controllers = arcade.get_game_controllers()
+        print(f"Encontrados {len(controllers)} controles!")
+
+        if controllers:
+            self.controller = controllers[0]
+            self.controller.open()
+            print("Conectado a un control")
 
     def update(self, delta_time: float = 1 / 60):
         self.center_x += self.change_x
-        self.center_y += self.change_y
         if self.center_x < 120:
             self.center_x = 120
         if self.center_x > WIDTH - 120:
@@ -126,6 +135,12 @@ class Level2GameView(arcade.View):
         )
         self.sprite_list.append(self.player)
         self.spawn_enemies()
+        self.setup_controller()
+    def setup_controller(self):
+        if self.player.controller:
+            self.player.controller.push_handlers(self)
+            print("Control configurado en la vista del juego")
+
 
     def spawn_enemies(self):
         num_enemies = random.randint(10, 20)  
@@ -182,6 +197,14 @@ class Level2GameView(arcade.View):
             arcade.color.AERO_BLUE,
             font_size=25
         )
+        
+        arcade.draw_text(
+            f"Lives: {self.player.lives}",
+            20,
+            HEIGHT - 80,
+            arcade.color.RED,
+            font_size=25
+        )
 
     def on_key_press(self, symbol, modifiers):
         if symbol == arcade.key.RIGHT:
@@ -194,5 +217,34 @@ class Level2GameView(arcade.View):
     def on_key_release(self, symbol, modifiers):
         if symbol in [arcade.key.LEFT, arcade.key.RIGHT]:
             self.player.change_x = 0
+    def on_joybutton_press(self, controller, button):
+        print(f"Botón presionado en la vista: {button}")
+        self.last_button_pressed = button
+        
+        if button == "x": 
+            self.player.shoot(self.lasers)
+            print("Disparando con botón X del control")
+        elif button == "a":  
+            self.player.shoot(self.lasers)
+            print("Disparando con botón A del control")
+        elif button == "0": 
+            self.player.shoot(self.lasers)
+            print("Disparando con botón 0 del control")
+            
+        
+        self.player.shoot(self.lasers) 
+        
+    def on_joybutton_release(self, controller, button):
+        print(f"Botón liberado: {button}")
+        
+    def on_joyaxis_motion(self, controller, axis, value):
+        if axis == "x":
+            if abs(value) < DEAD_ZONE:
+                self.player.change_x = 0
+            else:
+                self.player.change_x = value * MOVEMENT_SPEED
+                
+    def on_joyhat_motion(self, controller, hat_x, hat_y):
+        print(f"Hat movido: {hat_x}, {hat_y}")
 
 
